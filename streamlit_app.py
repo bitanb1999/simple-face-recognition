@@ -1,6 +1,25 @@
 import streamlit as st
 
-st.title("🎈 My new app")
-st.write(
-    "Let's start building! For help and inspiration, head over to [docs.streamlit.io](https://docs.streamlit.io/)."
+
+st.title("🤳 Simple Face Recognition")
+
+welcome = st.Page(
+    "welcome.py",
+    title="Welcome",
+    icon=":material/home:",
 )
+verify = st.Page(
+    "verify.py",
+    title="Verify Attendance",
+    icon=":material/security:",
+)
+register = st.Page(
+    "register.py", 
+    title="Register Employee", 
+    icon=":material/person_add:",
+)
+
+pg = st.navigation({'Menu': [welcome, verify, register]})
+
+pg.run()
+
