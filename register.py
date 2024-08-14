@@ -162,7 +162,8 @@ if submit_button:
         y_val = np.asarray(y_val)
     
     if os.path.exists(path_embedding_train):
-        x_train_load, y_train_load = np.load(path_embedding_train)
+        data = np.load(path_embedding_train)
+        x_train_load, y_train_load = data['x_train'], data['y_train']
         
         x_train = np.concatenate([x_train_load, x_train], axis=0)
         y_train = np.concatenate([y_train_load, y_train], axis=0)
@@ -170,7 +171,8 @@ if submit_button:
     np.savez_compressed(path_embedding_train, x_train=x_train, y_train=y_train)
     
     if os.path.exists(path_embedding_val):
-        x_val_load, y_val_load = np.load(path_embedding_val)
+        data = np.load(path_embedding_val)
+        x_val_load, y_val_load = data['x_val'], data['y_val']
         
         x_val = np.concatenate([x_val_load, x_val], axis=0)
         y_val = np.concatenate([y_val_load, y_val], axis=0)
@@ -183,6 +185,6 @@ if submit_button:
     container = st.container(border=True)
     st_img = container.empty()
     
-    for i in range(5):
+    while True:
         for frame in frames_view:
             st_img.image(frame, channels="BGR", use_column_width=True, caption='Processed Video')
