@@ -13,8 +13,5 @@ names = encoder_y_facenet.classes_.tolist()
 ids = encoder_y_facenet.transform(names)
 
 df = pd.DataFrame({'ID': ids, 'Name': names})
-df = pd.concat([
-    df, df, df, df, df, df, df
-], axis=0)
 
 st.dataframe(df, hide_index=True)
