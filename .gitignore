@@ -165,3 +165,4 @@ cython_debug/
 
 # added by fn-hide
 static/
+z.py
