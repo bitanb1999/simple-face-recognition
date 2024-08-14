@@ -1,1 +1,5 @@
+joblib==1.4.2
+onnxruntime==1.18.1
+opencv-python-headless==4.10.0.84
+scikit-learn==1.5.1
 streamlit>=1.36.0
