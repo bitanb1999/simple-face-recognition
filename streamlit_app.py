@@ -10,16 +10,21 @@ welcome = st.Page(
 )
 verify = st.Page(
     "verify.py",
-    title="Verify Attendance",
+    title="Verify Face",
     icon=":material/security:",
 )
 register = st.Page(
     "register.py", 
-    title="Register Employee", 
+    title="Register Face", 
     icon=":material/person_add:",
 )
+stored = st.Page(
+    'stored.py',
+    title='Stored Data',
+    icon=':material/database:',
+)
 
-pg = st.navigation({'Menu': [welcome, verify, register]})
+pg = st.navigation({'Menu': [welcome, verify, register, stored]})
 
 pg.run()
 
