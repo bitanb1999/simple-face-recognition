@@ -234,9 +234,9 @@ def register():
         return {'Message': 'Success'}
         
 
-@bp.route('/stored', methods=['GET'])
+@bp.route('/stored', methods=['POST'])
 def stored():
-    if request.method == 'GET':
+    if request.method == 'POST':
         encoder = get_encoder(current_app.config['PATH_ENCODER'])
         names = encoder.classes_.tolist()
         ids = encoder.transform(names)
