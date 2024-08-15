@@ -163,19 +163,17 @@ if submit_button:
     
     if os.path.exists(path_embedding_train):
         data = np.load(path_embedding_train)
-        x_train_load, y_train_load = data['x_train'], data['y_train']
         
-        x_train = np.concatenate([x_train_load, x_train], axis=0)
-        y_train = np.concatenate([y_train_load, y_train], axis=0)
+        x_train = np.concatenate([data['x_train'], x_train], axis=0)
+        y_train = np.concatenate([data['y_train'], y_train], axis=0)
     
     np.savez_compressed(path_embedding_train, x_train=x_train, y_train=y_train)
     
     if os.path.exists(path_embedding_val):
         data = np.load(path_embedding_val)
-        x_val_load, y_val_load = data['x_val'], data['y_val']
         
-        x_val = np.concatenate([x_val_load, x_val], axis=0)
-        y_val = np.concatenate([y_val_load, y_val], axis=0)
+        x_val = np.concatenate([data['x_val'], x_val], axis=0)
+        y_val = np.concatenate([data['y_val'], y_val], axis=0)
     
     np.savez_compressed(path_embedding_val, x_val=x_val, y_val=y_val)
     
