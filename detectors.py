@@ -348,7 +348,7 @@ class MiniFASNet(Onnx):
         prediction = softmax(outputs[0].squeeze(), axis=0)
 
         label = np.argmax(prediction)
-        score, cls = prediction[label], self.class_names[label]
+        score, cls = float(prediction[label]), self.class_names[label]
 
         return label, score, cls
 
