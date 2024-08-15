@@ -25,4 +25,6 @@ df['Validation'] = df.Name.apply(
         if x in os.listdir('assets/dataset/val') else len(os.listdir(f'static/dataset/val/{x}'))
     )
 
+df.Name = df.Name.apply(lambda x: f"{x[:4]}{'*'*len(x[4:])}")
+
 st.dataframe(df, hide_index=True)
