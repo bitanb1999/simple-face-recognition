@@ -10,6 +10,7 @@ from functions import resize_image
 from loader import (
     get_yolov8m_mask, 
     get_yolov8n_face, 
+    get_minifasnet, 
     get_facenet_512, 
     get_classifier, 
     get_encoder, 
@@ -28,6 +29,7 @@ st.header("Verify Face🔐")
 with st.spinner("Preparing all AI to be ready..."):
     detector_mask = get_yolov8m_mask()
     detector_face = get_yolov8n_face()
+    detector_liveness = get_minifasnet()
     verificator_face = get_facenet_512()
     
     encoder = get_encoder()
@@ -37,10 +39,12 @@ file_name = None
 file_type = None
 file_path = None
 
-is_capture = st.toggle('Use Webcam')
+container_input = st.container(border=True)
+
+is_capture = container_input.toggle('Use Webcam')
 
 if is_capture:
-    file_uploaded = st.camera_input('Take a picture.')
+    file_uploaded = container_input.camera_input('Take a picture.')
     
     if file_uploaded is not None:
         file_name, file_type = str(uuid4().hex), 'jpg'
@@ -51,7 +55,7 @@ if is_capture:
         with open(file_path, 'wb') as f:
             f.write(file_uploaded.getbuffer())
 else:
-    file_uploaded = st.file_uploader("Drop an image that contains your face to verify you attendance. (JPG/PNG)", accept_multiple_files=False, type=['jpg', 'png'])
+    file_uploaded = container_input.file_uploader("**&mdash; Drop an image that contains your face to verify you attendance. (JPG/PNG)**", accept_multiple_files=False, type=['jpg', 'png'])
 
     if file_uploaded is not None:
         file_name, file_type = file_uploaded.name.split('.')
@@ -63,6 +67,8 @@ else:
             f.write(file_uploaded.getbuffer())
 
 if file_path:
+    st.header('Result📸')
+    
     img = cv.imread(file_path)
     
     # --- mask detection
@@ -89,37 +95,43 @@ if file_path:
             face, bbox = detector_face.inference(img)
 
         if face.size == 0:
-            st.error('Your face is not detected. Make sure the lighting is sufficient and the face is clearly visible.', icon="❗")
+            st.error("AI can't detect your face. Make sure your image isn't too dark, too light, or too blurry.", icon="❗")
         
-        # --- face verification
         if face.size != 0:
-            embedding = verificator_face.inference(face)
-            if embedding.size == 0:
-                st.error("Something went wrong. Your face can't be analyzed. Please try using different face.", icon="❗")
+            # --- liveness detection
+            label, score = detector_liveness.inference(img, bbox)
+            fake = True if label != 1 and score >=.95 else False
+            
+            if fake:
+                st.error('AI detects fake image. Make sure to upload an image with good quality.', icon="❗")
             else:
-                img = detector_face.draw_detections(img, bbox)
-                
-                embedding = embedding.reshape(1, -1)
-                prediction = classifier.predict_proba(embedding)
-                for i, pred in enumerate(prediction[0]):
-                    print(i, pred)
-                
-                score = np.amax(prediction, axis=1)[0]
-                label = np.argmax(prediction, axis=1)[0]
-                name = encoder.inverse_transform([label])[0]
-                
-                print('Label:', label)
-                print('Name:', name)
-                print('Score:', score)
-                
-                st.header('Image Result📸')
-                if score < .5:
-                    st.info('Unknown', icon='ℹ️')
+                # --- face verification
+                embedding = verificator_face.inference(face)
+                if embedding.size == 0:
+                    st.error("Something went wrong. Your face could not be analyzed. Try using a different image.", icon="❗")
                 else:
-                    st.success(name, icon="✅")
-                
-                img, _, _, _, _ = resize_image(img)
+                    img = detector_face.draw_detections(img, bbox)
+                    
+                    embedding = embedding.reshape(1, -1)
+                    prediction = classifier.predict_proba(embedding)
+                    for i, pred in enumerate(prediction[0]):
+                        print(i, pred)
+                    
+                    score = np.amax(prediction, axis=1)[0]
+                    label = np.argmax(prediction, axis=1)[0]
+                    name = encoder.inverse_transform([label])[0]
+                    
+                    print('Label:', label)
+                    print('Name:', name)
+                    print('Score:', score)
+                    
+                    if score < .5:
+                        st.info('Unknown', icon='ℹ️')
+                    else:
+                        st.success(f"Hi, {name.split()[0].title()}.", icon="✅")
+                    
+                    img, _, _, _, _ = resize_image(img)
     
-    container = st.container(border=True)
-    container.image(img, caption=f"{file_name}.{file_type}", use_column_width='always', channels='BGR')
+    container_output = st.container(border=True)
+    container_output.image(img, caption=f"{file_name}.{file_type}", use_column_width='always', channels='BGR')
     

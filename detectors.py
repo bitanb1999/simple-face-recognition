@@ -319,7 +319,7 @@ class MiniFASNet(Onnx):
 
         self._class_names = self.get_class_names()
 
-    def inference(self, img: np.ndarray, bbox: tuple[int, int, int, int]) -> int:
+    def inference(self, img: np.ndarray, bbox: tuple[int, int, int, int]) -> tuple[int, float]:
         tic = perf_counter()
 
         img_input = self.preprocess(img, bbox)
@@ -336,7 +336,7 @@ class MiniFASNet(Onnx):
         if self.verbose:
             print(f"Postprocess time ({self.__class__.__name__}) : {(perf_counter() - tic) * 1000:.2f} ms")
 
-        return label
+        return label, score
 
     def preprocess(self, img: np.ndarray, bbox: tuple[int, int, int, int]) -> np.ndarray:
         img = self.crop(img, bbox)
