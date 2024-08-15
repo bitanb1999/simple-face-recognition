@@ -7,7 +7,7 @@ from time import perf_counter
 from scipy.stats import uniform
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.preprocessing import LabelEncoder, Normalizer
-from sklearn.metrics import accuracy_score, classification_report, ConfusionMatrixDisplay
+from sklearn.metrics import accuracy_score, classification_report
 from sklearn.svm import SVC
 
 from loader import get_facenet_512
@@ -107,15 +107,9 @@ def finetune(
     
     print('Train Classification Report')
     print(classification_report(y_train_scaled, y_pred_train, target_names=encoder_y.classes_))
-    ConfusionMatrixDisplay.from_estimator(
-        clf, x_train_scaled, y_train_scaled, display_labels=encoder_y.classes_, xticks_rotation="vertical"
-    )
     
     print('Val Classification Report')
     print(classification_report(y_val_scaled, y_pred_val, target_names=encoder_y.classes_))
-    ConfusionMatrixDisplay.from_estimator(
-        clf, x_val_scaled, y_val_scaled, display_labels=encoder_y.classes_, xticks_rotation="vertical"
-    )
     
     # --- save best models
     joblib.dump(clf.best_estimator_, dst_classifier)
@@ -138,9 +132,6 @@ def finetune(
             y_pred_test = clf.predict(x_test_scaled)
             
             print(classification_report(y_test_scaled, y_pred_test, target_names=[_ for _ in encoder_y.classes_ if _ in y_test]))
-            ConfusionMatrixDisplay.from_estimator(
-                clf, x_test_scaled, y_test_scaled, display_labels=[_ for _ in encoder_y.classes_ if _ in y_test], xticks_rotation="vertical"
-            )
     
     return None
 
