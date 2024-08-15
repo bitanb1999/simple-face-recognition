@@ -123,7 +123,7 @@ if submit_button:
                 continue
                 
         # --- face detection
-        face, bbox = detector_face.inference(frame)
+        face, bbox, score = detector_face.inference(frame)
         if face.size != 0:
             x, y, w, h = bbox
             cv.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)

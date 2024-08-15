@@ -70,7 +70,7 @@ class YOLOv8nFace(Onnx):
 
         return img, pad_height, pad_width, scale_h, scale_w
 
-    def inference(self, img: np.ndarray, align=True) -> tuple[np.ndarray, tuple[int, int, int, int]]:
+    def inference(self, img: np.ndarray, align=True) -> tuple[np.ndarray, tuple[int, int, int, int], float]:
         tic = perf_counter()
 
         img_input, padh, padw, scale_h, scale_w = self.preprocess(img)
@@ -83,15 +83,15 @@ class YOLOv8nFace(Onnx):
             print(f"Inference time ({self.__class__.__name__}) : {(perf_counter() - tic) * 1000:.2f} ms")
             tic = perf_counter()
 
-        detected_face, (x, y, w, h) = self.postprocess(outputs, scale_h, scale_w, padh, padw, img, align=align)
+        detected_face, (x, y, w, h), score = self.postprocess(outputs, scale_h, scale_w, padh, padw, img, align=align)
         if self.verbose:
             print(f"Postprocess time ({self.__class__.__name__}) : {(perf_counter() - tic) * 1000:.2f} ms")
 
-        return detected_face, (x, y, w, h)
+        return detected_face, (x, y, w, h), score
 
     def postprocess(
             self, preds, scale_h, scale_w, padh, padw, img: np.ndarray, align=True
-    ) -> tuple[np.ndarray, tuple[int, int, int, int]]:
+    ) -> tuple[np.ndarray, tuple[int, int, int, int], float]:
         boxes_xyxy, scores, landmarks = [], [], []
 
         # TODO: breakdown this loop into function.
@@ -146,7 +146,7 @@ class YOLOv8nFace(Onnx):
             boxes_xywh.tolist(), confidences.tolist(), self.conf_threshold, self.iou_threshold
         )
         if not len(indices) > 0:
-            return np.array([]), (0, 0, 0, 0)
+            return np.array([]), (0, 0, 0, 0), .0
 
         # mlvl : multi-level bounding boxes
         boxes = boxes_xywh[indices]
@@ -155,7 +155,7 @@ class YOLOv8nFace(Onnx):
         kpts = landmarks[indices]
 
         if boxes.size == 0:
-            return np.array([]), (0, 0, 0, 0)
+            return np.array([]), (0, 0, 0, 0), .0
 
         x, y, w, h = [abs(int(_)) for _ in boxes[0]]
         detected_face = img[y:y + h, x:x + w]
@@ -169,7 +169,7 @@ class YOLOv8nFace(Onnx):
                     detected_face, left_eye_coor, right_eye_coor
                 )
 
-        return detected_face, (x, y, w, h)
+        return detected_face, (x, y, w, h), float(confidences[0])
     
     def draw_detections(self, image, boxes):
         x, y, w, h = boxes

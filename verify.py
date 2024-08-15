@@ -83,15 +83,15 @@ if file_path:
         img, _, _, _, _ = resize_image(img)
     else:
         # --- face detection
-        face, bbox = detector_face.inference(img)
+        face, bbox, score = detector_face.inference(img)
 
         if face.size == 0:
             # img = cv.detailEnhance(img, sigma_s=100, sigma_r=0.55)
-            # face, bbox = detector_face.inference(img)
+            # face, bbox, score = detector_face.inference(img)
             
             img = adjust_gamma(img, gamma=1.5)
             # img = cv.detailEnhance(img, sigma_s=100, sigma_r=0.55)
-            face, bbox = detector_face.inference(img)
+            face, bbox, score = detector_face.inference(img)
 
         if face.size == 0:
             st.error("AI can't detect your face. Make sure your image isn't too dark, too light, or too blurry.", icon="❗")
