@@ -1,13 +1,10 @@
 import os
-import random
 import joblib
 import numpy as np
-import matplotlib.pyplot as plt
 
-from PIL import Image
 from sklearn.svm import SVC
 from time import perf_counter
-from scipy.stats import loguniform, uniform
+from scipy.stats import uniform
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.preprocessing import LabelEncoder, Normalizer
 from sklearn.metrics import accuracy_score, classification_report, ConfusionMatrixDisplay
@@ -24,7 +21,6 @@ def finetune(
     norm=False, 
     src_aug=None,
     src_test=None,
-    plot=False,
 ) -> None:
     """Fine-tune and save both of classifier and encoder models.
 
@@ -145,10 +141,6 @@ def finetune(
             ConfusionMatrixDisplay.from_estimator(
                 clf, x_test_scaled, y_test_scaled, display_labels=[_ for _ in encoder_y.classes_ if _ in y_test], xticks_rotation="vertical"
             )
-    
-    if plot:
-        plt.tight_layout()
-        plt.show()
     
     return None
 

@@ -4,7 +4,6 @@ import numpy as np
 import streamlit as st
 
 from uuid import uuid4
-from time import sleep
 
 from functions import resize_image
 from loader import (
