@@ -57,15 +57,13 @@ def get_yolov8m_mask() -> YOLOv8mMaskOpenCV:
     return model_yolov8m_mask
 
 
-def get_encoder() -> LabelEncoder:
-    model_updated = 'static/model/encoder.joblib'
+def get_encoder(model_updated='static/model/encoder.joblib') -> LabelEncoder:
     if os.path.exists(model_updated):
         return joblib.load(model_updated)
     return joblib.load('assets/model/encoder.joblib')
 
 
-def get_classifier() -> LabelEncoder:
-    model_updated = 'static/model/classifier.joblib'
+def get_classifier(model_updated='static/model/classifier.joblib') -> LabelEncoder:
     if os.path.exists(model_updated):
         return joblib.load(model_updated)
     return joblib.load('assets/model/classifier.joblib')
