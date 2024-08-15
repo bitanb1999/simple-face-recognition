@@ -1,5 +1,6 @@
-import streamlit as st
+import os
 import pandas as pd
+import streamlit as st
 
 from loader import get_encoder
 
@@ -13,5 +14,15 @@ names = encoder_y_facenet.classes_.tolist()
 ids = encoder_y_facenet.transform(names)
 
 df = pd.DataFrame({'ID': ids, 'Name': names})
+df['Train'] = df.Name.apply(
+    lambda x: 
+        len(os.listdir(f'assets/dataset/train/{x}')) 
+        if x in os.listdir('assets/dataset/train') else len(os.listdir(f'static/dataset/train/{x}'))
+    )
+df['Validation'] = df.Name.apply(
+    lambda x: 
+        len(os.listdir(f'assets/dataset/val/{x}')) 
+        if x in os.listdir('assets/dataset/val') else len(os.listdir(f'static/dataset/val/{x}'))
+    )
 
 st.dataframe(df, hide_index=True)
