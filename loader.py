@@ -56,23 +56,23 @@ def get_yolov8m_mask() -> YOLOv8mMaskOpenCV:
     return model_yolov8m_mask
 
 
-def get_encoder_y_facenet() -> LabelEncoder:
-    global model_encoder_y_facenet
+def get_encoder() -> LabelEncoder:
+    global model_encoder
     
-    if 'model_encoder_y_facenet' in globals():
-        return model_encoder_y_facenet
+    if 'model_encoder' in globals():
+        return model_encoder
     
-    model_encoder_y_facenet = joblib.load('assets/model/encoder_y_facenet.joblib')
+    model_encoder = joblib.load('assets/model/encoder.joblib')
     
-    return model_encoder_y_facenet
+    return model_encoder
 
 
-def get_classifier_facenet() -> LabelEncoder:
-    global model_classifier_facenet
+def get_classifier() -> LabelEncoder:
+    global model_classifier
     
-    if 'model_classifier_facenet' in globals():
-        return model_classifier_facenet
+    if 'model_classifier' in globals():
+        return model_classifier
     
-    model_classifier_facenet = joblib.load('assets/model/classifier_facenet.joblib')
+    model_classifier = joblib.load('assets/model/classifier.joblib')
     
-    return model_classifier_facenet
+    return model_classifier
