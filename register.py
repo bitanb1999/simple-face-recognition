@@ -4,20 +4,27 @@ import shutil
 import cv2 as cv
 import numpy as np
 import streamlit as st
-
 from uuid import uuid4
-from loader import get_yolov8n_face, get_facenet_512, get_encoder_y_facenet, get_classifier_facenet
+
 from functions import resize_image
+from loader import (
+    get_yolov8m_mask, 
+    get_yolov8n_face, 
+    get_facenet_512, 
+    get_encoder, 
+    get_classifier, 
+)
 
 
 st.header("Register Face🙋")
 
 with st.spinner("Preparing all AI to be ready..."):
+    detector_mask = get_yolov8m_mask()
     detector_face = get_yolov8n_face()
-    
     verificator_face = get_facenet_512()
-    encoder_y_facenet = get_encoder_y_facenet()
-    classifier_facenet = get_classifier_facenet()
+    
+    encoder_y_facenet = get_encoder()
+    classifier_facenet = get_classifier()
 
 path_file = None
 path_file_annotated = None
@@ -91,6 +98,26 @@ if submit_button:
         if not ret:
             break
         
+        # --- mask detection
+        mask = detector_mask.inference(frame)
+        if mask:
+            if mask[0]['class_id'] == 0 or mask[0]['class_id'] == 2:
+                scale = mask[0]['scale']
+                x, y, w, h = mask[0]['box']
+                x1, y1, x2, y2 = int(x*scale), int(y*scale), int((x + w)*scale), int((y + h)*scale)
+
+                cv.rectangle(frame, (x1, y1), (x2, y2), [255, 0, 0], 2)
+                
+                frame, _, _, _, _ = resize_image(frame)
+                
+                frames_view.append(frame)
+                bar.progress(min(i / n_frames, 1.), text=bar_text)
+                
+                i += 1
+                
+                continue
+                
+        # --- face detection
         face, bbox = detector_face.inference(frame)
         if face.size != 0:
             x, y, w, h = bbox
