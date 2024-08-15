@@ -217,7 +217,7 @@ class YOLOv8mMaskOpenCV:
         self.input_height = 640
         self.input_width = 640
 
-    def inference(self, img: np.ndarray, show=False) -> list[dict]:
+    def inference(self, img: np.ndarray) -> list[dict]:
         # Read the input image
         [height, width, _] = img.shape
 
@@ -276,21 +276,21 @@ class YOLOv8mMaskOpenCV:
                 "scale": scale,
             }
             detections.append(detection)
-            self.draw_bounding_box(
-                img,
-                class_ids[index],
-                scores[index],
-                round(box[0] * scale),
-                round(box[1] * scale),
-                round((box[0] + box[2]) * scale),
-                round((box[1] + box[3]) * scale),
-            )
+            # self.draw_bounding_box(
+            #     img,
+            #     class_ids[index],
+            #     scores[index],
+            #     round(box[0] * scale),
+            #     round(box[1] * scale),
+            #     round((box[0] + box[2]) * scale),
+            #     round((box[1] + box[3]) * scale),
+            # )
 
-        if show:
-            # Display the image with bounding boxes
-            cv.imshow("img", img)
-            cv.waitKey(0)
-            cv.destroyAllWindows()
+        # if show:
+        #     # Display the image with bounding boxes
+        #     cv.imshow("img", img)
+        #     cv.waitKey(0)
+        #     cv.destroyAllWindows()
 
         return detections
 
