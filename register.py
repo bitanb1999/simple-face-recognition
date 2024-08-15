@@ -1,18 +1,20 @@
 import os
 import random
+import joblib
 import shutil
 import cv2 as cv
 import numpy as np
 import streamlit as st
 from uuid import uuid4
 
+from utils import get_embeddings_dataset, finetune
 from functions import resize_image
 from loader import (
     get_yolov8m_mask, 
     get_yolov8n_face, 
     get_facenet_512, 
-    get_encoder, 
     get_classifier, 
+    get_encoder, 
 )
 
 
@@ -23,8 +25,8 @@ with st.spinner("Preparing all AI to be ready..."):
     detector_face = get_yolov8n_face()
     verificator_face = get_facenet_512()
     
-    encoder_y_facenet = get_encoder()
-    classifier_facenet = get_classifier()
+    encoder = get_encoder()
+    classifier = get_classifier()
 
 path_file = None
 path_file_annotated = None
@@ -37,12 +39,13 @@ val_size = .2
 form = st.form(key='form_retrain')
 
 name = form.text_input(label='Your name here:')
-uploaded_file = form.file_uploader("**&mdash; Drop a video file that contains your face in 360°. (AVI/MP4/MOV/MKV)**", accept_multiple_files=False, type=['avi', 'mp4', 'mov', 'mkv'])
+uploaded_file = form.file_uploader("**&mdash; Drop a video file of your face in 360° and give your wonderful smile. (AVI/MP4/MOV/MKV)**", accept_multiple_files=False, type=['avi', 'mp4', 'mov', 'mkv'])
 
 submit_button = form.form_submit_button(label='Submit')
 
 if submit_button:
     name = name.upper()
+    
     path_dataset_train = os.path.join('static', 'dataset', 'train', name)
     path_dataset_val = os.path.join('static', 'dataset', 'val', name)
     path_embedding = os.path.join('static', 'embedding')
@@ -68,6 +71,9 @@ if submit_button:
     if not uploaded_file:
         st.error('Video is required!', icon='🚨')
         st.stop()
+    
+    os.makedirs(path_dataset_train, exist_ok=True)
+    os.makedirs(path_dataset_val, exist_ok=True)
     
     # --- save uploaded file
     _, type_file = uploaded_file.name, uploaded_file.type.split('/')[-1]
@@ -134,6 +140,7 @@ if submit_button:
     cap.release()
     bar.empty()
     
+    # --- if more than 50 faces data has been collected, then do random pick
     n_frames = len(frames_save)
     print('Total Frames:', len(frames_save))
     if n_frames > 50:
@@ -147,10 +154,7 @@ if submit_button:
     val_size = int(len(frames_save) * val_size)
     data_train, data_val = frames_save[:-val_size], frames_save[-val_size:]
     
-    # --- save detection results, i.e. face frame.
-    os.makedirs(path_dataset_train)
-    os.makedirs(path_dataset_val)
-    
+    # --- save images of face detection results.
     for item_train in data_train:
         path_ = os.path.join(path_dataset_train, f"{str(uuid4().hex)}.jpg")
         cv.imwrite(path_, item_train)
@@ -159,50 +163,44 @@ if submit_button:
         path_ = os.path.join(path_dataset_val, f"{str(uuid4().hex)}.jpg")
         cv.imwrite(path_, item_val)
     
-    # --- save embedding of splitted data
-    os.makedirs(path_embedding, exist_ok=True)
-    
-    x_train = []
-    y_train = []
-    for item_train in data_train:
-        embedding = verificator_face.inference(item_train).squeeze()
-        if embedding.size == 0:
-            continue
-        
-        x_train.append(embedding)
-        y_train.append(name)
-    else:
-        x_train = np.asarray(x_train)
-        y_train = np.asarray(y_train)
-    
-    x_val = []
-    y_val = []
-    for item_val in data_val:
-        embedding = verificator_face.inference(item_val).squeeze()
-        if embedding.size == 0:
-            continue
-        
-        x_val.append(embedding)
-        y_val.append(name)
-    else:
-        x_val = np.asarray(x_val)
-        y_val = np.asarray(y_val)
+    # --- perform facenet inferences then build/update dataset.
+    # --- if exist, update the existing embeddings
+    x_train, y_train = get_embeddings_dataset(data_train, name)
+    x_val, y_val = get_embeddings_dataset(data_val, name)
     
     if os.path.exists(path_embedding_train):
         data = np.load(path_embedding_train)
-        
         x_train = np.concatenate([data['x_train'], x_train], axis=0)
         y_train = np.concatenate([data['y_train'], y_train], axis=0)
     
-    np.savez_compressed(path_embedding_train, x_train=x_train, y_train=y_train)
-    
     if os.path.exists(path_embedding_val):
         data = np.load(path_embedding_val)
-        
         x_val = np.concatenate([data['x_val'], x_val], axis=0)
         y_val = np.concatenate([data['y_val'], y_val], axis=0)
     
+    np.savez_compressed(path_embedding_train, x_train=x_train, y_train=y_train)
     np.savez_compressed(path_embedding_val, x_val=x_val, y_val=y_val)
+    
+    # --- prepare all dataset before fine-tune (merge base dataset with updated dataset)
+    data = np.load('assets/embedding/train.npz')
+    x_train = np.concatenate([data['x_train'], x_train], axis=0)
+    y_train = np.concatenate([data['y_train'], y_train], axis=0)
+    
+    data = np.load('assets/embedding/train-aug.npz')
+    x_train = np.concatenate([data['x_train'], x_train], axis=0)
+    y_train = np.concatenate([data['y_train'], y_train], axis=0)
+    
+    data = np.load('assets/embedding/val.npz')
+    x_val = np.concatenate([data['x_val'], x_val], axis=0)
+    y_val = np.concatenate([data['y_val'], y_val], axis=0)
+    
+    # --- perform fine-tune then save best estimator.
+    finetune(
+        src_train=(x_train, y_train),
+        src_val=(x_val, y_val),
+        dst_classifier='static/model/classifier.joblib',
+        dst_encoder='static/model/encoder.joblib',
+    )
     
     # --- show detection results with bounding box.
     st.header("Video Result🎥")
