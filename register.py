@@ -155,18 +155,20 @@ if submit_button:
     data_train, data_val = frames_save[:-val_size], frames_save[-val_size:]
     
     # --- save images of face detection results.
-    for item_train in data_train:
-        path_ = os.path.join(path_dataset_train, f"{str(uuid4().hex)}.jpg")
-        cv.imwrite(path_, item_train)
-    
-    for item_val in data_val:
-        path_ = os.path.join(path_dataset_val, f"{str(uuid4().hex)}.jpg")
-        cv.imwrite(path_, item_val)
+    with st.spinner("Saving images..."):
+        for item_train in data_train:
+            path_ = os.path.join(path_dataset_train, f"{str(uuid4().hex)}.jpg")
+            cv.imwrite(path_, item_train)
+        
+        for item_val in data_val:
+            path_ = os.path.join(path_dataset_val, f"{str(uuid4().hex)}.jpg")
+            cv.imwrite(path_, item_val)
     
     # --- perform facenet inferences then build/update dataset.
     # --- if exist, update the existing embeddings
-    x_train, y_train = get_embeddings_dataset(data_train, name)
-    x_val, y_val = get_embeddings_dataset(data_val, name)
+    with st.spinner("Building dataset..."):
+        x_train, y_train = get_embeddings_dataset(data_train, name)
+        x_val, y_val = get_embeddings_dataset(data_val, name)
     
     if os.path.exists(path_embedding_train):
         data = np.load(path_embedding_train)
@@ -195,19 +197,21 @@ if submit_button:
     y_val = np.concatenate([data['y_val'], y_val], axis=0)
     
     # --- perform fine-tune then save best estimator.
-    finetune(
-        src_train=(x_train, y_train),
-        src_val=(x_val, y_val),
-        dst_classifier='static/model/classifier.joblib',
-        dst_encoder='static/model/encoder.joblib',
-    )
+    with st.spinner("Building AI for you..."):
+        finetune(
+            src_train=(x_train, y_train),
+            src_val=(x_val, y_val),
+            dst_classifier='static/model/classifier.joblib',
+            dst_encoder='static/model/encoder.joblib',
+        )
     
     # --- show detection results with bounding box.
-    st.header("Video Result🎥")
-        
-    container = st.container(border=True)
-    st_img = container.empty()
+    st.header("Result🎥")
+    st.info("Here is the data that will be used to create AI that can be adapted to verify your face.", icon='ℹ️')
     
-    while True:
+    container_output = st.container(border=True)
+    st_img = container_output.empty()
+    
+    for i in range(30):
         for frame in frames_view:
             st_img.image(frame, channels="BGR", use_column_width=True, caption='Processed Video')
