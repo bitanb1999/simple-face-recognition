@@ -1,6 +1,8 @@
-# 🎈 Blank app template
+# 🤳 Simple Face Recognition
 
-A simple Streamlit app template for you to modify!
+<p align="center"><img src="assets/placeholder/logo.jpg" width="200"></p>
+
+Provide simple face recognition with some kind of additional features i.e. Face Detection, Liveness Detection, Mask Detection, and Face Verification.
 
 [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://blank-app-template.streamlit.app/)
 
