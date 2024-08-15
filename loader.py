@@ -1,5 +1,5 @@
 import joblib
-from detectors import YOLOv8nFace, MiniFASNet, Facenet512
+from detectors import YOLOv8nFace, MiniFASNet, Facenet512, YOLOv8mMaskOpenCV
 from sklearn.preprocessing import LabelEncoder
 from sklearn.svm import SVC
 
@@ -41,6 +41,19 @@ def get_yolov8n_face() -> YOLOv8nFace:
         verbose=False,
     )
     return model_yolov8n_face
+
+
+def get_yolov8m_mask() -> YOLOv8mMaskOpenCV:
+    global model_yolov8m_mask
+
+    if 'model_yolov8m_mask' in globals():
+        return model_yolov8m_mask
+
+    model_yolov8m_mask = YOLOv8mMaskOpenCV(
+        'assets/model/yolov8m-mask.onnx',
+        verbose=False,
+    )
+    return model_yolov8m_mask
 
 
 def get_encoder_y_facenet() -> LabelEncoder:
