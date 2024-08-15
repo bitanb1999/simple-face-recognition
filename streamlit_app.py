@@ -8,6 +8,7 @@ os.makedirs('static/model', exist_ok=True)
 os.makedirs('static/registration', exist_ok=True)
 
 
+st.logo('assets/placeholder/logo.jpg')
 st.title("🤳 Simple Face Recognition")
 
 welcome = st.Page(
