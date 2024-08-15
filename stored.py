@@ -1,13 +1,13 @@
 import streamlit as st
 import pandas as pd
 
-from loader import get_yolov8n_face, get_facenet_512, get_encoder_y_facenet, get_classifier_facenet
+from loader import get_encoder
 
 
 st.header("Stored Data📦")
 
 with st.spinner("Preparing all AI to be ready..."):
-    encoder_y_facenet = get_encoder_y_facenet()
+    encoder_y_facenet = get_encoder()
 
 names = encoder_y_facenet.classes_.tolist()
 ids = encoder_y_facenet.transform(names)

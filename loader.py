@@ -1,3 +1,4 @@
+import os
 import joblib
 from detectors import YOLOv8nFace, MiniFASNet, Facenet512, YOLOv8mMaskOpenCV
 from sklearn.preprocessing import LabelEncoder
@@ -57,22 +58,14 @@ def get_yolov8m_mask() -> YOLOv8mMaskOpenCV:
 
 
 def get_encoder() -> LabelEncoder:
-    global model_encoder
-    
-    if 'model_encoder' in globals():
-        return model_encoder
-    
-    model_encoder = joblib.load('assets/model/encoder.joblib')
-    
-    return model_encoder
+    model_updated = 'static/model/encoder.joblib'
+    if os.path.exists(model_updated):
+        return joblib.load(model_updated)
+    return joblib.load('assets/model/encoder.joblib')
 
 
 def get_classifier() -> LabelEncoder:
-    global model_classifier
-    
-    if 'model_classifier' in globals():
-        return model_classifier
-    
-    model_classifier = joblib.load('assets/model/classifier.joblib')
-    
-    return model_classifier
+    model_updated = 'static/model/classifier.joblib'
+    if os.path.exists(model_updated):
+        return joblib.load(model_updated)
+    return joblib.load('assets/model/classifier.joblib')
