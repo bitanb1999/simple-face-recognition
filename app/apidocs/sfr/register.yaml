@@ -1,0 +1,70 @@
+Register input video into stored face data.
+---
+tags:
+  - Simple Face Recognition (SFR)
+consumes:
+  - multipart/form-data
+produces:
+  - application/json
+parameters:
+  - in: formData
+    name: video
+    type: file
+    required: true
+    description: User face video file in 360 degree.
+  - in: formData
+    name: name
+    type: string
+    required: true
+    description: User fullname for face video label.
+responses:
+  200:
+    description: Success
+    schema:
+      type: object
+      properties:
+        Message:
+          type: string
+          description: Any information while API execution process.
+      example:
+        {
+            'Message': 'Success'
+        }
+  400:
+    description: Bad request
+    schema:
+      type: object
+      properties:
+        Message:
+          type: string
+          description: Any information while API execution process.
+      example:
+        {
+            'Message': 'Invalid!'
+        }
+  409:
+    description: Conflict
+    schema:
+      type: object
+      properties:
+        Message:
+          type: string
+          description: Any information while API execution process.
+      example:
+        {
+            'Message': 'User already registered.'
+        }
+  415:
+    description: Unsupported Media Type
+    schema:
+      type: object
+      properties:
+        Message:
+          type: string
+          description: Any information while API execution process.
+      example:
+        {
+            'Message': 'Invalid file extension!'
+        }
+  500:
+    description: Internal server error

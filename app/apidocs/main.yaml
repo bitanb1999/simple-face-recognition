@@ -1,0 +1,7 @@
+swagger: '2.0'
+
+info:
+  version: '0.0.1'
+  title: Simple Face Recognition (SFR) API Documentation
+  description: |
+    APIs available on SFR. All API calls can be used with the post method and without using any authorization scheme.

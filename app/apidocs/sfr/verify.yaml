@@ -1,0 +1,140 @@
+Verify input image towards stored face data.
+---
+tags:
+  - Simple Face Recognition (SFR)
+consumes:
+  - multipart/form-data
+produces:
+  - application/json
+parameters:
+  - in: formData
+    name: img
+    type: file
+    required: true
+    description: User face image file
+responses:
+  200:
+    description: Success
+    schema:
+      type: object
+      properties:
+        Message:
+          type: string
+          description: Any information while API execution process.
+        DetectionMask:
+          type: array
+          description: Result of Mask Detection.
+          items:
+            type: object
+            properties:
+              Result:
+                type: string
+              Score:
+                type: float
+        DetectionFace:
+          type: array
+          description: Result of Face Detection.
+          items:
+            type: object
+            properties:
+              Result:
+                type: string
+              Score:
+                type: float
+        DetectionFake:
+          type: array
+          description: Result of Spoof Detection.
+          items:
+            type: object
+            properties:
+              Result:
+                type: string
+              Score:
+                type: float
+        VerificationFace:
+          type: array
+          description: Result of Face Verification.
+          items:
+            type: object
+            properties:
+              Result:
+                type: string
+              Score:
+                type: float
+      example:
+        {
+            'Message': None,
+            'DetectionMask': [{
+              'Result': false,
+              'Score': 0.93476918346
+            }],
+            'DetectionFace': [{
+              'Result': true,
+              'Score': 0.93476918346
+            }],
+            'DetectionFake': [{
+              'Result': false,
+              'Score': 0.93476918346
+            }],
+            'VerificationFace': [{
+              'Name': 'John Doe'
+            }],
+        }
+  400:
+    description: Bad request
+    schema:
+      type: object
+      properties:
+        Message:
+          type: string
+          description: Any information while API execution process.
+        DetectionMask:
+          type: array
+          description: Result of Mask Detection.
+          items:
+            type: object
+            properties:
+              Result:
+                type: string
+              Score:
+                type: float
+        DetectionFace:
+          type: array
+          description: Result of Face Detection.
+          items:
+            type: object
+            properties:
+              Result:
+                type: string
+              Score:
+                type: float
+        DetectionFake:
+          type: array
+          description: Result of Spoof Detection.
+          items:
+            type: object
+            properties:
+              Result:
+                type: string
+              Score:
+                type: float
+        VerificationFace:
+          type: array
+          description: Result of Face Verification.
+          items:
+            type: object
+            properties:
+              Result:
+                type: string
+              Score:
+                type: float
+      example:
+        {
+            'Message': 'Invalid!',
+            'DetectionMask': [],
+            'DetectionFace': [],
+            'DetectionFake': [],
+            'VerificationFace': [],
+        }
+  500:
+    description: Internal server error

@@ -1,0 +1,35 @@
+Register input video into stored face data.
+---
+tags:
+  - Simple Face Recognition (SFR)
+consumes:
+  - multipart/form-data
+produces:
+  - application/json
+responses:
+  200:
+    description: Success
+    schema:
+      type: object
+      properties:
+        ID:
+          type: integer
+          description: ID number related to the name of uploaded 360 face video file.
+        Name:
+          type: string
+          description: Name related to the uploaded 360 face video file.
+        Train:
+          type: integer
+          description: Total count of generated image subset from uploaded 360 face video file that successfully detected face.
+        Validation:
+          type: integer
+          description: Total count of generated image subset from uploaded 360 face video file that successfully detected face.
+      example:
+        {
+            'ID': 42,
+            'Name': 'John Doe',
+            'Train': 80,
+            'Validation': 20
+        }
+  500:
+    description: Internal server error

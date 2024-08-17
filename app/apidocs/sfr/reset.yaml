@@ -1,0 +1,23 @@
+Reset (remove) all data and images from stored face data.
+---
+tags:
+  - Simple Face Recognition (SFR)
+consumes:
+  - multipart/form-data
+produces:
+  - application/json
+responses:
+  200:
+    description: Success
+    schema:
+      type: object
+      properties:
+        Message:
+          type: string
+          description: Any information while API execution process.
+      example:
+        {
+            'Message': 'Success'
+        }
+  500:
+    description: Internal server error

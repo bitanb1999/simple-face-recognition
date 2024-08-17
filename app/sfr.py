@@ -5,6 +5,7 @@ import cv2 as cv
 import numpy as np
 import pandas as pd
 from uuid import uuid4
+from flasgger import swag_from
 from flask import (
     Blueprint,
     request,
@@ -26,6 +27,7 @@ from functions import resize_image
 bp = Blueprint('sfr', __name__, url_prefix='/api/sfr')
 
 @bp.route('/verify', methods=['POST'])
+@swag_from('apidocs/sfr/verify.yaml')
 def verify():
     if request.method == 'POST':
         response = {
@@ -95,6 +97,7 @@ def verify():
         return response, 200
 
 @bp.route('/register', methods=['POST'])
+@swag_from('apidocs/sfr/register.yaml')
 def register():
     if request.method == 'POST':
         response = {
@@ -118,6 +121,7 @@ def register():
         if os.path.exists(path_dataset_train) or os.path.exists(path_dataset_val):
             if os.path.exists(path_dataset_train) and os.path.exists(path_dataset_val):
                 response['Message'] = 'User already registered.'
+                return response, 409
             else:
                 if os.path.exists(path_dataset_train):
                     shutil.rmtree(path_dataset_train)
@@ -131,9 +135,11 @@ def register():
         video_name = video.filename
         if not video:
             response['Message'] = 'Invalid file type!'
+            return response, 415
         
         if not ('.' in video_name and video_name.rsplit('.', 1)[1].lower() in {'mp4', 'avi', 'mov', 'mkv'}):
             response['Message'] = 'Invalid file extension!'
+            return response, 415
         
         _, ext = video_name.rsplit('.', 1)
         path_register = os.path.join(current_app.config['PATH_REGISTRATION'], f"{str(uuid4().hex)}.{ext}")
@@ -231,10 +237,10 @@ def register():
             dst_encoder=current_app.config['PATH_ENCODER'],
         )
         
-        return {'Message': 'Success'}
-        
+        return {'Message': 'Success'}, 200
 
 @bp.route('/stored', methods=['POST'])
+@swag_from('apidocs/sfr/stored.yaml')
 def stored():
     if request.method == 'POST':
         encoder = get_encoder(current_app.config['PATH_ENCODER'])
@@ -257,6 +263,7 @@ def stored():
         return df.to_dict(orient='records')
 
 @bp.route('/reset', methods=['POST'])
+@swag_from('apidocs/sfr/reset.yaml')
 def reset():
     list_dir = os.listdir(current_app.config['PATH_STATIC'])
     if not list_dir:
